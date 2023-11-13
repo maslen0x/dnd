@@ -1,20 +1,9 @@
 <script setup lang="ts">
-import { ElMessage } from 'element-plus';
-import { useSocketStore } from '@/store/socket';
+import { usePlayersStore } from '@/store/players';
 
-const socketStore = useSocketStore();
+const playersStore = usePlayersStore();
 
 const dices = [4, 6, 8, 10, 12, 20, 100];
-
-const getDice = (dice: number) => {
-  socketStore.emit({
-    event: 'getDice',
-    data: dice,
-    callback: (value) => {
-      ElMessage(`Результат: ${value}`);
-    },
-  });
-};
 </script>
 
 <template>
@@ -24,7 +13,7 @@ const getDice = (dice: number) => {
     <el-button
       v-for="dice in dices"
       :key="dice"
-      @click="getDice(dice)"
+      @click="playersStore.getDice(dice)"
     >
       D{{ dice }}
     </el-button>

@@ -1,33 +1,18 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue';
-import { InternalRuleItem } from 'async-validator';
-import { ElMessage, FormInstance, FormRules } from 'element-plus';
+import { reactive, ref, watch } from 'vue';
+import { FormInstance, FormRules } from 'element-plus';
 import { characteristics } from '@/data/characteristics';
 import { skills } from '@/data/skills';
 import { usePlayersStore } from '@/store/players';
-import { useSocketStore } from '@/store/socket';
 import { Characteristic } from '@/types/characteristics';
-import { Equipment } from '@/types/equipment';
+import { CreatePlayerData } from '@/types/players';
 import { getModifier } from '@/utils/characteristics';
 import { storage } from '@/utils/storage';
-
-interface FormValues {
-  name: string;
-  background: string;
-  race: string;
-  class: string;
-  weapon: Equipment;
-  armor: Equipment;
-  characteristics: Record<Characteristic, number>;
-  savingThrows: string[];
-  skills: string[];
-}
-
-const characteristicsMax = 72;
+import { requiredRule } from '@/utils/validation';
 
 const weaponValues = [4, 6, 8, 10, 12];
 
-const defaultFormValues: FormValues = {
+const defaultFormValues: CreatePlayerData = {
   name: '',
   background: '',
   race: '',
@@ -52,40 +37,13 @@ const defaultFormValues: FormValues = {
   skills: [],
 };
 
-const socketStore = useSocketStore();
 const playersStore = usePlayersStore();
 
 const formRef = ref<FormInstance | null>(null);
-const error = ref<string | null>(null);
 
-const form = reactive<FormValues>(storage.get('player') || defaultFormValues);
+const form = reactive<CreatePlayerData>(storage.get('player') || defaultFormValues);
 
-const characteristicsSum = computed(() => {
-  return Object.values(form.characteristics).reduce((acc, item) => acc + item, 0);
-});
-
-const requiredRule = (message: string) => ({
-  required: true,
-  message,
-  trigger: 'blur',
-});
-
-const characteristicsRule = {
-  validator: (_rule: InternalRuleItem, _value: number, callback: (error?: Error) => void) => {
-    error.value = null;
-
-    if (characteristicsSum.value > characteristicsMax) {
-      callback(new Error());
-      error.value = `Сумма характеристик не должна быть больше ${characteristicsMax}!`;
-      return;
-    }
-
-    callback();
-  },
-  trigger: 'change',
-};
-
-const rules: FormRules<typeof form> = {
+const rules: FormRules<CreatePlayerData> = {
   name: [requiredRule('Введи имя!')],
   race: [requiredRule('Введи расу!')],
   class: [requiredRule('Введи класс!')],
@@ -93,12 +51,12 @@ const rules: FormRules<typeof form> = {
   'weapon.value': [requiredRule('Введи урон!')],
   'armor.name': [requiredRule('Введи название доспехов!')],
   'armor.value': [requiredRule('Введи защиту!')],
-  'characteristics.strength': [requiredRule('Введи силу'), characteristicsRule],
-  'characteristics.agility': [requiredRule('Введи ловкость'), characteristicsRule],
-  'characteristics.stamina': [requiredRule('Введи выносливость'), characteristicsRule],
-  'characteristics.intelligence': [requiredRule('Введи интеллект'), characteristicsRule],
-  'characteristics.wisdom': [requiredRule('Введи мудрость'), characteristicsRule],
-  'characteristics.charisma': [requiredRule('Введи харизму'), characteristicsRule],
+  'characteristics.strength': [requiredRule('Введи силу')],
+  'characteristics.agility': [requiredRule('Введи ловкость')],
+  'characteristics.stamina': [requiredRule('Введи выносливость')],
+  'characteristics.intelligence': [requiredRule('Введи интеллект')],
+  'characteristics.wisdom': [requiredRule('Введи мудрость')],
+  'characteristics.charisma': [requiredRule('Введи харизму')],
 };
 
 const onSubmit = async () => {
@@ -106,18 +64,7 @@ const onSubmit = async () => {
 
   await formRef.value.validate((valid) => {
     if (valid) {
-      socketStore.emit({
-        event: 'createPlayer',
-        data: form,
-        callback: (player) => {
-          ElMessage({
-            message: 'Добро пожаловать!',
-            type: 'success',
-          });
-          console.log('createPlayer', player);
-          playersStore.current = player;
-        },
-      });
+      playersStore.create(form);
     }
   });
 };
@@ -256,7 +203,6 @@ watch(form, (form) => {
             <el-form-item
               :label="getLabel(key)"
               :prop="`characteristics.${key}`"
-              :validate-status="error ? 'error' : ''"
             >
               <el-input-number
                 v-model="form.characteristics[key]"
@@ -264,19 +210,6 @@ watch(form, (form) => {
                 :max="30"
               />
             </el-form-item>
-          </el-col>
-
-          <el-col
-            v-if="error"
-            :class="$style.offset"
-            :span="24"
-          >
-            <el-alert
-              :title="error"
-              :description="`Сейчас: ${characteristicsSum}`"
-              type="error"
-              :closable="false"
-            />
           </el-col>
         </el-row>
 
@@ -314,25 +247,6 @@ watch(form, (form) => {
                 />
               </el-checkbox-group>
             </el-form-item>
-            <!-- <div :class="$style.label">Навыки</div>
-
-            <el-space
-              direction="vertical"
-              alignment="start"
-              :size="0"
-            >
-              <template
-                v-for="[key, value] in Object.entries(skills)"
-                :key="key"
-              >
-                <el-checkbox
-                  v-for="skill in value"
-                  :key="skill"
-                  :label="`${skill} (${characteristics[key as Characteristic].slice(0, 3)})`"
-                  class="full-width"
-                />
-              </template>
-            </el-space> -->
           </el-col>
         </el-row>
 

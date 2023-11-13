@@ -1,12 +1,8 @@
-import { Player } from './players';
+import { CreatePlayerData, Player } from './players';
 
 interface CreatePlayerEmit {
   event: 'createPlayer';
-  data: {
-    name: string;
-    race: string;
-    class: string;
-  };
+  data: CreatePlayerData;
   callback: (player: Player) => void;
 }
 
