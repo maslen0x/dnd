@@ -6,7 +6,7 @@ import { skills } from '@/data/skills';
 import { usePlayersStore } from '@/store/players';
 import { Characteristic } from '@/types/characteristics';
 import { CreatePlayerData } from '@/types/players';
-import { getModifier } from '@/utils/characteristics';
+import { getLabel } from '@/utils/characteristics';
 import { storage } from '@/utils/storage';
 import { requiredRule } from '@/utils/validation';
 
@@ -67,11 +67,6 @@ const onSubmit = async () => {
       playersStore.create(form);
     }
   });
-};
-
-const getLabel = (key: Characteristic) => {
-  const value = form.characteristics[key];
-  return `${characteristics[key]} (${getModifier(value)})`;
 };
 
 watch(form, (form) => {
@@ -201,7 +196,7 @@ watch(form, (form) => {
             :span="8"
           >
             <el-form-item
-              :label="getLabel(key)"
+              :label="getLabel(key, form.characteristics[key])"
               :prop="`characteristics.${key}`"
             >
               <el-input-number

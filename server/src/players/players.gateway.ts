@@ -9,6 +9,7 @@ import {
 import { Socket } from 'socket.io';
 import { LogsService } from '@/logs/logs.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
+import { UpdatePlayerDto } from './dto/update-player.dto';
 import { Player } from './interfaces/player.interface';
 import { PlayersService } from './players.service';
 
@@ -67,9 +68,24 @@ export class PlayersGateway implements OnGatewayConnection, OnGatewayDisconnect 
   }
 
   @SubscribeMessage('updatePlayer')
-  update(@ConnectedSocket() client: Socket, @MessageBody() dto: Player) {
-    const player = this.playersService.update(client.id, dto);
+  updateHealth(@ConnectedSocket() client: Socket, @MessageBody() dto: UpdatePlayerDto) {
+    let player = this.playersService.findOne(client.id);
+
+    this.logsService.create({
+      event: 'updatePlayer',
+      player: player.name,
+      date: Date.now(),
+      value: {
+        old: player,
+        new: dto,
+      },
+    });
+    client.nsp.to('logs').emit('updateLogs', this.logsService.findAll());
+
+    player = this.playersService.update(client.id, dto);
+
     client.nsp.emit('updatePlayers', this.playersService.findAll());
+
     return player;
   }
 

@@ -55,11 +55,11 @@ export class PlayersService {
   update(id: string, dto: UpdatePlayerDto) {
     this.players[id] = {
       ...this.players[id],
+      ...dto,
       characteristics: {
         ...this.players[id].characteristics,
         ...dto.characteristics,
       },
-      ...dto,
     };
     return this.players[id];
   }

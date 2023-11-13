@@ -1,4 +1,4 @@
-import { CreatePlayerData, Player } from './players';
+import { CreatePlayerData, Player, UpdatePlayerData } from './players';
 
 interface CreatePlayerEmit {
   event: 'createPlayer';
@@ -8,12 +8,8 @@ interface CreatePlayerEmit {
 
 interface UpdatePlayerEmit {
   event: 'updatePlayer';
-  data: {
-    name?: string;
-    race?: string;
-    class?: string;
-    health?: number;
-  };
+  data: UpdatePlayerData;
+  callback: (player: Player) => void;
 }
 
 interface GetDiceEmit {

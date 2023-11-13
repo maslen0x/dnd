@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Pointer } from '@element-plus/icons-vue';
+import { ref } from 'vue';
+import { Edit, Pointer } from '@element-plus/icons-vue';
 import { characteristics } from '@/data/characteristics';
 import { skills } from '@/data/skills';
 import { usePlayersStore } from '@/store/players';
@@ -7,9 +8,14 @@ import { useSocketStore } from '@/store/socket';
 import { Characteristic } from '@/types/characteristics';
 import { Skill } from '@/types/skill';
 import { getModifier } from '@/utils/characteristics';
+import EditCharacteristicsForm from './EditCharacteristicsForm.vue';
+import EditHealthForm from './EditHealthForm.vue';
 
 const playersStore = usePlayersStore();
 const socketStore = useSocketStore();
+
+const editHealthDialogVisible = ref(false);
+const editCharacteristicsDialogVisible = ref(false);
 
 const getLabel = (key: Characteristic, value: number) => {
   return `${characteristics[key]}: ${value} (${getModifier(value)})`;
@@ -42,19 +48,21 @@ const getSkills = (skill: Skill, value: number, skills: string[]) => {
         Имя: {{ player.name }} <template v-if="player.id === socketStore.id">(Ты)</template>
       </div>
 
-      <el-space v-if="player.background">
+      <div v-if="player.background">
         <el-tooltip
           :content="player.background.replaceAll(/\n/g, '<br />')"
           raw-content
           placement="top"
         >
-          Предыстория
-        </el-tooltip>
+          <el-space>
+            Предыстория
 
-        <el-icon>
-          <Pointer />
-        </el-icon>
-      </el-space>
+            <el-icon>
+              <Pointer />
+            </el-icon>
+          </el-space>
+        </el-tooltip>
+      </div>
 
       <el-text
         v-else
@@ -63,7 +71,22 @@ const getSkills = (skill: Skill, value: number, skills: string[]) => {
         Предыстория
       </el-text>
 
-      <div>Здоровье: {{ player.health }}</div>
+      <el-space class="full-width">
+        Здоровье: {{ player.health }}
+
+        <el-tooltip
+          v-if="player.id === socketStore.id"
+          content="Редактировать"
+          placement="top"
+        >
+          <el-icon
+            class="cursor-pointer"
+            @click="editHealthDialogVisible = true"
+          >
+            <Edit />
+          </el-icon>
+        </el-tooltip>
+      </el-space>
 
       <div>Инициатива: {{ getModifier(player.characteristics.agility) }}</div>
 
@@ -75,7 +98,7 @@ const getSkills = (skill: Skill, value: number, skills: string[]) => {
 
       <div>Доспехи: {{ player.armor.name }} ({{ player.armor.value }})</div>
 
-      <el-space class="full-width">
+      <el-space>
         <el-tooltip placement="top">
           <template #content>
             <div
@@ -86,15 +109,30 @@ const getSkills = (skill: Skill, value: number, skills: string[]) => {
             </div>
           </template>
 
-          Характеристики
+          <el-space>
+            Характеристики
+
+            <el-icon>
+              <Pointer />
+            </el-icon>
+          </el-space>
         </el-tooltip>
 
-        <el-icon>
-          <Pointer />
-        </el-icon>
+        <el-tooltip
+          v-if="player.id === socketStore.id"
+          content="Редактировать"
+          placement="top"
+        >
+          <el-icon
+            class="cursor-pointer"
+            @click="editCharacteristicsDialogVisible = true"
+          >
+            <Edit />
+          </el-icon>
+        </el-tooltip>
       </el-space>
 
-      <el-space class="full-width">
+      <div>
         <el-tooltip placement="top">
           <template #content>
             <div
@@ -105,15 +143,17 @@ const getSkills = (skill: Skill, value: number, skills: string[]) => {
             </div>
           </template>
 
-          Спасброски
+          <el-space>
+            Спасброски
+
+            <el-icon>
+              <Pointer />
+            </el-icon>
+          </el-space>
         </el-tooltip>
+      </div>
 
-        <el-icon>
-          <Pointer />
-        </el-icon>
-      </el-space>
-
-      <el-space class="full-width">
+      <div>
         <el-tooltip placement="top">
           <template #content>
             <div
@@ -124,13 +164,41 @@ const getSkills = (skill: Skill, value: number, skills: string[]) => {
             </div>
           </template>
 
-          Навыки
-        </el-tooltip>
+          <el-space>
+            Навыки
 
-        <el-icon>
-          <Pointer />
-        </el-icon>
-      </el-space>
+            <el-icon>
+              <Pointer />
+            </el-icon>
+          </el-space>
+        </el-tooltip>
+      </div>
     </div>
   </template>
+
+  <el-dialog
+    v-model="editHealthDialogVisible"
+    title="Редактирование здоровья"
+    :class="$style.dialog"
+    :width="300"
+  >
+    <EditHealthForm @close="editHealthDialogVisible = false" />
+  </el-dialog>
+
+  <el-dialog
+    v-model="editCharacteristicsDialogVisible"
+    title="Редактирование характеристик"
+    :class="$style.dialog"
+    :width="500"
+  >
+    <EditCharacteristicsForm @close="editCharacteristicsDialogVisible = false" />
+  </el-dialog>
 </template>
+
+<style module lang="scss">
+.dialog {
+  :global(.el-dialog__body) {
+    padding: 20px 20px 2px;
+  }
+}
+</style>

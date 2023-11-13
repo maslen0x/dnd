@@ -13,7 +13,7 @@ const playersStore = usePlayersStore();
     v-if="playersStore.current"
     :class="$style.container"
   >
-    <el-aside width="300px">
+    <el-aside width="400px">
       <el-card :class="$style.scroll">
         <PlayersList />
       </el-card>
@@ -26,7 +26,7 @@ const playersStore = usePlayersStore();
       </el-card>
     </el-main>
 
-    <el-aside width="300px">
+    <el-aside width="400px">
       <el-card :class="$style.scroll">
         <LogsList />
       </el-card>
@@ -48,6 +48,6 @@ const playersStore = usePlayersStore();
 
 .scroll {
   height: 100%;
-  overflow-y: auto;
+  overflow-y: auto !important;
 }
 </style>

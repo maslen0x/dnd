@@ -26,3 +26,7 @@ export interface CreatePlayerData {
   savingThrows: string[];
   skills: string[];
 }
+
+export interface UpdatePlayerData extends Partial<CreatePlayerData> {
+  health?: number;
+}

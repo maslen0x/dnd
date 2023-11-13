@@ -20,9 +20,9 @@ export const useSocketStore = defineStore('socket', () => {
     console.log('connect', socket.id);
 
     socket.on('disconnect', (reason) => {
-      console.log('disconnect', reason);
       playersStore.current = null;
       ElMessage({ message: 'Дисконнект!', type: 'error' });
+      console.log('disconnect', reason);
     });
 
     socket.emit('findAllPlayers', {}, (players: Player[]) => {
@@ -46,11 +46,7 @@ export const useSocketStore = defineStore('socket', () => {
   });
 
   const emit = (payload: SocketEmit) => {
-    if ('callback' in payload) {
-      socket.emit(payload.event, payload.data, payload.callback);
-    } else {
-      socket.emit(payload.event, payload.data);
-    }
+    socket.emit(payload.event, payload.data, payload.callback);
   };
 
   return { id, emit };
