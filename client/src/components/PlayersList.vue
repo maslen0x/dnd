@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Edit, Pointer } from '@element-plus/icons-vue';
+import { Edit, Minus, Check, Pointer } from '@element-plus/icons-vue';
 import { characteristics } from '@/data/characteristics';
 import { skills } from '@/data/skills';
 import { usePlayersStore } from '@/store/players';
@@ -21,13 +21,13 @@ const getLabel = (key: Characteristic, value: number) => {
   return `${characteristics[key]}: ${value} (${getModifier(value)})`;
 };
 
-const getSavingThrows = (key: Characteristic, value: number, savingThrows: string[]) => {
+const getSavingThrow = (key: Characteristic, value: number, savingThrows: string[]) => {
   const selected = savingThrows.includes(characteristics[key]);
   const modifier = getModifier(value, selected ? 2 : 0);
   return `${characteristics[key]}: ${modifier}`;
 };
 
-const getSkills = (skill: Skill, value: number, skills: string[]) => {
+const getSkill = (skill: Skill, value: number, skills: string[]) => {
   const selected = skills.includes(skill.name);
   const modifier = getModifier(value, selected ? 2 : 0);
   return `${skill.name}: ${modifier}`;
@@ -135,12 +135,20 @@ const getSkills = (skill: Skill, value: number, skills: string[]) => {
       <div>
         <el-tooltip placement="top">
           <template #content>
-            <div
+            <el-space
               v-for="[key, value] in Object.entries(player.characteristics)"
               :key="key"
+              class="full-width"
             >
-              {{ getSavingThrows(key as Characteristic, value, player.savingThrows) }}
-            </div>
+              <el-icon>
+                <Check
+                  v-if="player.savingThrows.includes(characteristics[key as Characteristic])"
+                />
+                <Minus v-else />
+              </el-icon>
+
+              {{ getSavingThrow(key as Characteristic, value, player.savingThrows) }}
+            </el-space>
           </template>
 
           <el-space>
@@ -156,12 +164,18 @@ const getSkills = (skill: Skill, value: number, skills: string[]) => {
       <div>
         <el-tooltip placement="top">
           <template #content>
-            <div
+            <el-space
               v-for="skill in skills"
               :key="skill.name"
+              class="full-width"
             >
-              {{ getSkills(skill, player.characteristics[skill.characteristic], player.skills) }}
-            </div>
+              <el-icon>
+                <Check v-if="player.skills.includes(skill.name)" />
+                <Minus v-else />
+              </el-icon>
+
+              {{ getSkill(skill, player.characteristics[skill.characteristic], player.skills) }}
+            </el-space>
           </template>
 
           <el-space>

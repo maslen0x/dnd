@@ -1,7 +1,8 @@
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { defineStore } from 'pinia';
 import { CreatePlayerData, Player, UpdatePlayerData } from '@/types/players';
+import { storage } from '@/utils/storage';
 import { useSocketStore } from './socket';
 
 export const usePlayersStore = defineStore('players', () => {
@@ -53,6 +54,10 @@ export const usePlayersStore = defineStore('players', () => {
       },
     });
   };
+
+  watch(current, (current) => {
+    storage.set('player', current);
+  });
 
   return {
     current,
