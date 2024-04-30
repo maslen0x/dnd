@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CreatePlayerForm from '@/components/CreatePlayerForm.vue';
+import LoginCard from '@/components/LoginCard.vue';
 import PlayersList from '@/components/PlayersList.vue';
 import LogsList from './components/LogsList.vue';
 import MainDices from './components/MainDices.vue';
@@ -33,7 +33,7 @@ const playersStore = usePlayersStore();
     </el-aside>
   </el-container>
 
-  <CreatePlayerForm v-else />
+  <LoginCard v-else />
 </template>
 
 <style module lang="scss">
