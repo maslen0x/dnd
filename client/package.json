@@ -10,8 +10,7 @@
     "lint:ts": "eslint . --ext .ts,.vue --ignore-path .gitignore",
     "lint:css": "stylelint **/*.{scss,vue}",
     "lint": "concurrently \"npm:lint:*\"",
-    "format": "prettier . --write --ignore-path .gitignore",
-    "prepare": "husky install"
+    "format": "prettier . --write --ignore-path .gitignore"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
@@ -32,7 +31,6 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-vue": "^9.17.0",
-    "husky": "^8.0.3",
     "prettier": "^3.0.3",
     "sass": "^1.69.4",
     "stylelint": "^15.11.0",
