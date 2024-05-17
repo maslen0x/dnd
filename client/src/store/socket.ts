@@ -12,7 +12,11 @@ export const useSocketStore = defineStore('socket', () => {
   const playersStore = usePlayersStore();
   const logsStore = useLogsStore();
 
-  const socket = io(import.meta.env.VITE_APP_API_URL);
+  const socket = io(import.meta.env.VITE_APP_API_URL, {
+    extraHeaders: {
+      'ngrok-skip-browser-warning': 'true',
+    },
+  });
 
   const id = computed(() => socket.id);
 
